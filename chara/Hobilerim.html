@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @font-face {
+            font-family: 'UndertaleFont';
+            src: url('determination.ttf') format('truetype'); 
+        }
+
+        body {
+            font-family: 'UndertaleFont', sans-serif;
+            background-color: black; 
+            color: white; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ses dosyası ekranda görünmez (autoplay, loop ve preload özellikleri ile otomatik ve döngülü çalır) -->
+    <audio id="bg-music" src="ending.mp3" autoplay loop preload="auto"></audio>
+
+    <center>
+        <img width="600" height="500" src="thend.png">
+    </center>
+
+    <br><a href="İvit.html" style="color: white;">Geri dön</a>
+
+    <script>
+        // Tarayıcıların otomatik ses politikası engeline takılmamak için 
+        // kullanıcı sayfada herhangi bir yere ilk tıkladığında müziğin çalmasını sağlayan güvenlik önlemi
+        window.addEventListener('DOMContentLoaded', () => {
+            const music = document.getElementById('bg-music');
+            music.play().catch(() => {
+                console.log("Tarayıcı otomatik oynatmayı engelledi, ilk etkileşim bekleniyor.");
+            });
+        });
+
+        document.body.addEventListener('click', () => {
+            const music = document.getElementById('bg-music');
+            if (music.paused) {
+                music.play();
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>

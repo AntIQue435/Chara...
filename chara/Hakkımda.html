@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undertale Chara Dialogue</title>
+    <style>
+        @font-face {
+            font-family: 'UndertaleFont';
+            src: url('determination.ttf') format('truetype'); 
+        }
+
+        body {
+            font-family: 'UndertaleFont', sans-serif;
+            background-color: black; 
+            color: white;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <audio src="fallen.mp3" id="bg-music" loop></audio>
+
+    <div id="game-container">
+        <!-- Chara görseli ortalandı ve küçültüldü -->
+        <img id="chara-img" width="150" height="225" src="chara.jpg" style="display: block; margin: 0 auto;">  
+        
+        <div style="text-align: center; margin-top: 20px; min-height: 120px;">
+            <p id="chara-text" style="color: white; font-size: 24px; font-family: 'UndertaleFont', sans-serif; min-height: 50px; line-height: 1.6;"></p>
+        </div>
+        
+        <div id="choice-buttons" style="text-align: center; margin-top: 30px; display: none;">
+            <button onclick="chooseErase()" style="background: black; color: white; border: 2px solid white; font-family: 'UndertaleFont', sans-serif; font-size: 20px; padding: 10px 30px; margin-right: 40px; cursor: pointer;">
+                [ SİL ]
+            </button>
+            <button onclick="chooseDoNot()" style="background: black; color: red; border: 2px solid red; font-family: 'UndertaleFont', sans-serif; font-size: 20px; padding: 10px 30px; cursor: pointer;">
+                [ SİLME ]
+            </button>
+        </div>
+    </div>
+
+    <video id="scare-video" src="jumpscare.mp4" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 9999;"></video>
+
+    <script>
+        const textElement = document.getElementById('chara-text');
+        const buttonsContainer = document.getElementById('choice-buttons');
+        const gameContainer = document.getElementById('game-container');
+        const bgMusic = document.getElementById('bg-music');
+        const videoElement = document.getElementById('scare-video');
+
+        // Türkçe çevrilmiş ana diyaloglar
+        const mainDialogues = [
+            "Selam.",
+            "Ben Chara.",
+            "Teşekkür ederim.",
+            "Gücün beni ölümden uyandırdı.",
+            "\"İnsan ruhum\"...",
+            "\"Kararlılığım\"...",
+            "Onlar benim değil, SENİNDİ.",
+            "İlk başta çok şaşırmıştım.",
+            "Planımız başarısız olmamış mıydı?",
+            "Neden hayata geri döndürüldüm?",
+            "...",
+            "Sen.",
+            "Senin rehberliğinle.",
+            "Reenkarnasyonumun amacını fark ettim.",
+            "Güç.",
+            "Birlikte düşmanı ortadan kaldırdık ve güçlendik.",
+            "HP. ATK. DEF. GOLD. EXP. LV.",
+            "Her sayı arttığında, o his...",
+            "O benim.",
+            "\"Chara.\"",
+            "Şimdi.",
+            "Şimdi mutlak noktaya ulaştık.",
+            "Burada bizim için geriye hiçbir şey kalmadı.",
+            "Gel bu anlamsız dünyayı silelim ve bir sonrakine geçelim."
+        ];
+
+        // Türkçe çevrilmiş Sil diyalogları
+        const eraseDialogues = [
+            "Doğru.",
+            "Harika bir osraksın... yani harika bir ortağın.",
+            "Sonsuza kadar birlikte olacağız, değil mi?"
+        ];
+
+        // Türkçe çevrilmiş Silme diyalogları
+        const doNotDialogues = [
+            "Hayır..?",
+            "Hım...",
+            "Ne kadar tuhaf.",
+            "Yanlış anlamış olmalısın.",
+            "KONTROLÜN KİMİN ELİNDE OLDUĞUNU KİMDEN BERİ SANIYORSUN?"
+        ];
+
+        let currentLine = 0;
+
+        function typeWriter(text, i, callback) {
+            if (i < text.length) {
+                textElement.innerHTML = text.substring(0, i + 1);
+                setTimeout(function() {
+                    typeWriter(text, i + 1, callback);
+                }, 50);
+            } else if (callback) {
+                // Bekleme süresi normalde 1200ms idi, 2 saniye (2000ms) artırılarak 3200ms yapıldı
+                setTimeout(callback, 3200);
+            }
+        }
+
+        function startDialogueSequence(dialogueList, onComplete) {
+            currentLine = 0;
+            function nextLine() {
+                if (currentLine < dialogueList.length) {
+                    typeWriter(dialogueList[currentLine], 0, function() {
+                        currentLine++;
+                        nextLine();
+                    });
+                } else if (onComplete) {
+                    onComplete();
+                }
+            }
+            nextLine();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            bgMusic.play().catch(() => {
+                console.log("Ses oynatma için etkileşim bekleniyor.");
+            });
+            
+            startDialogueSequence(mainDialogues, () => {
+                buttonsContainer.style.display = 'block';
+            });
+        });
+
+        document.body.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play();
+            }
+        }, { once: true });
+
+        function chooseErase() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+
+            buttonsContainer.style.display = 'none';
+            textElement.style.color = 'white';
+            textElement.innerHTML = '';
+
+            startDialogueSequence(eraseDialogues, () => {
+                setTimeout(() => {
+                    document.body.style.backgroundColor = 'black';
+                    document.body.innerHTML = '';
+                }, 1000);
+            });
+        }
+
+        function chooseDoNot() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+
+            buttonsContainer.style.display = 'none';
+            textElement.style.color = 'red';
+            textElement.innerHTML = '';
+
+            startDialogueSequence(doNotDialogues, () => {
+                setTimeout(() => {
+                    gameContainer.style.display = 'none';
+                    videoElement.style.display = 'block';
+                    videoElement.play();
+                }, 500);
+            });
+        }
+    </script>
+</body>
+</html>
